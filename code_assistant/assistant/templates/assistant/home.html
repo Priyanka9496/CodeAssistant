@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Code Assistant</title>
+    <!-- Load Static Files -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<header>
+    <h1>Python Code Assistant</h1>
+</header>
+
+<main class="container">
+    <!-- Code Generation Section -->
+    <section class="card">
+        <h2>Generate Code</h2>
+        <form id="generate-form">
+            <label for="task">Choose a task (e.g., django_basic_app, django_model_view, django_form_view):</label>
+            <input type="text" id="task" name="task" required>
+            <button type="submit" class="btn">Generate</button>
+        </form>
+        <pre id="generated-code"></pre>
+    </section>
+
+    <!-- Debugging Section -->
+    <section class="card">
+        <h2>Debug Code</h2>
+        <form id="debug-form" method="POST">
+            {% csrf_token %}
+            <textarea id="code" name="code" rows="10" cols="50" placeholder="Paste your Python code here..." required></textarea>
+            <button type="submit" class="btn">Debug</button>
+        </form>
+        <pre id="debug-result"></pre>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Python Code Assistant</p>
+</footer>
+
+<!-- Script for handling form submissions -->
+<script>
+    // Function to get CSRF token from cookies
+    function getCSRFToken() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith('csrftoken=')) {
+                return cookie.substring('csrftoken='.length, cookie.length);
+            }
+        }
+        return null;
+    }
+
+    // Handle form submission for code generation
+    document.getElementById('generate-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const task = document.getElementById('task').value;
+        const response = await fetch(`/generate_code/?task=${task}`);
+        const data = await response.json();
+        document.getElementById('generated-code').textContent = data.code;
+    });
+
+    // Handle form submission for debugging code
+    document.getElementById('debug-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = document.getElementById('code').value;
+
+        // Get CSRF token
+        const csrfToken = getCSRFToken();
+
+        // Send the code with CSRF token in the request headers
+        const response = await fetch('/debug_code/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken,  // Include CSRF token in headers
+            },
+            body: new URLSearchParams({ code }),
+        });
+
+        const data = await response.json();
+        document.getElementById('debug-result').textContent = data.debug_result;
+    });
+</script>
+
+</body>
+</html>
