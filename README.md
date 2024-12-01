@@ -8,7 +8,7 @@ The application is built using the Django framework and features a user-friendly
 
 Installation Instructions:
 1. Clone the Repository:
-  git clone https://github.com/Priyanka9496/CodeAssistant.git
+   gh repo clone Priyanka9496/CodeAssistant
   cd python-code-assistant
 2. Set Up Virtual Environment:
    python -m venv venv
